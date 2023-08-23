@@ -1,0 +1,56 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    width: 100%;
+    height: 100%;
+    margin-bottom: 10vh;
+    background-color: #fbfbfb;
+/* background-image: linear-gradient(0deg, #fbfbfb 0%, #007eff 100%); */
+
+}
+.form-container{
+    width: 100%;
+    /* height: 70vh; */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-bottom: 5vh;
+}
+.form-restaurant{
+    width: 35%;
+    flex-direction: column;
+    border: 2px solid black;
+    border-radius: 15px;
+    padding: 60px;
+     background-color: #FBAB7E;
+     background-color: rgba(199, 183, 183, 0.348);
+     backdrop-filter: blur(2px);
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+}
+.form-employe{
+    width: 35%;
+    flex-direction: column;
+    border: 2px solid black;
+    border-radius: 15px;
+    padding: 60px;
+    background-color: #85FFBD;
+    background-color: rgba(199, 183, 183, 0.348);
+    backdrop-filter: blur(2px);
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+}
+table{
+    background-color: #FAD961;
+    background-color: rgba(199, 183, 183, 0.348);
+    backdrop-filter: blur(2px);
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+    border-radius: 1px;
+
+
+}
+.btn-employe{
+    background:none;
+    border: none;
+
+}

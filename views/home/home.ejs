@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.1.3/dist/united/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.1.3/dist/united/_variables.scss">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Accueil</title>
+</head>
+<body>
+    <div class="container my-2">
+        <div id="app">
+            <button class="btn btn-primary my-4 mx-5" @click="update()" onclick="reloadPage()">Mettre à jour</button>
+            <div class="form-container">
+            <!-- Formulaire pour ajouter un restaurant -->
+            <form @submit.prevent="createOneRestaurant" class="form-restaurant">
+                <h1>Restaurant</h1>
+                <label class="form-label mt-4">Nom du restaurant:</label>
+                <input type="text" v-model="name" class="form-control" required>
+                
+                <label class="form-label mt-4">Region:</label>
+                <input type="text" v-model="city" class="form-control" required>
+                
+                <label class="form-label mt-4">Nombre de couverts:</label>
+                <input type="text" v-model="nbcouverts" class="form-control" required>
+                
+                <label class="form-label mt-4">Terrasse:</label>
+                <select v-model="terrasse" class="form-control" required>
+                    <option value="oui">Oui</option>
+                    <option value="non">Non</option>
+                </select>
+                
+                <label class="form-label mt-4">Parking:</label>
+                <select v-model="parking" class="form-control" required>
+                    <option value="oui">Oui</option>
+                    <option value="non">Non</option>
+                </select>
+                
+                <button type="submit" class="btn btn-success mt-5 mx-5" onclick="reloadPage()">Ajouter Restaurant</button>
+            </form>
+
+             <!-- Formulaire pour ajouter un employé -->
+             <form @submit.prevent="createEmploye" class="form-employe">
+                <h1>Employe</h1>
+                <label class="form-label mt-4">Nom de l'employé:</label>
+                <input type="text" v-model="last_name"class="form-control"  required>
+
+                <label class="form-label mt-4">Prenom :</label>
+                <input type="text" v-model="first_name"class="form-control"  required>
+
+                <label class="form-label mt-4">Date :</label>
+                <input type="date" v-model="hire_date" class="form-control" required>
+
+                <label class="form-label mt-4">Restaurant:</label>
+                <select v-model="restaurant_id" class="form-select" required>
+                    <option v-for="restaurant in restaurants" :key="restaurant.Id" :value="restaurant.Id">{{ restaurant.name }} </option>
+                </select>
+                
+                <button type="submit" class="btn btn-success mt-5 mx-5 " onclick="reloadPage()">Ajouter Employé</button>
+            </form>
+        </div>
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Nom du restaurant</th>
+                        <th scope="col">employe</th>
+                        <th scope="col">Region</th>
+                        <th scope="col">couverts</th>
+                        <th scope="col">Terrasse</th>
+                        <th scope="col">Parking</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="table-active" v-for="restaurant in restaurants" :key="restaurant.id">
+                        
+                        <td>
+                            {{ restaurant.name }}
+                            <ul>
+                                <td>
+                                    <li v-for="employe in restaurant.employes" :key="employe.id">
+                                        {{ employe.first_name }} - {{ employe.last_name }}
+                                        <button type="button" class="btn-employe" @click="deleteEmployee(restaurant.Id, employe.Id)" onclick="reloadPage()">❌</button>
+                                    </li>
+                                </td>
+                            </ul>
+                        </td>
+                        <td>{{ restaurant.city }}</td>
+                        <td>{{ restaurant.nbcouverts }}</td>
+                        <td>{{ restaurant.terrasse }}</td>
+                        <td>{{ restaurant.parking }}</td>
+                        <td><button type="button" class="btn btn-primary" @click="deleteRestaurant(restaurant.Id)" onclick="reloadPage()">✘</button></td>
+                        
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        let app = new Vue({
+            el: "#app",
+            data: {
+                restaurants: []
+            },
+            methods: {
+                async update() {
+                    try {
+                        const restaurantResponse = await axios.get(`http://127.0.0.1:5000/restaurant`);
+                        const restaurants = restaurantResponse.data;
+    
+                        const promises = restaurants.map(async restaurant => {
+                            const employeResponse = await axios.get(`http://127.0.0.1:5000/restaurant/${restaurant.Id}/employe`);
+                            restaurant.employes = employeResponse.data;
+                            return restaurant;
+                        });
+    
+                        this.restaurants = await Promise.all(promises);
+                    } catch (error) {
+                        console.error("Error fetching data:", error);
+                        this.restaurants = [{"name": "Erreur de chargement"}];
+                    }
+                },
+                async deleteEmployee(restaurantId, employeeId) {
+                    try {
+                        await axios.delete(`http://127.0.0.1:5000/restaurant/${restaurantId}/employe/${employeeId}`);
+                        this.restaurants = this.restaurants.map(restaurant => {
+                            if (restaurant.Id === restaurantId) {
+                                restaurant.employes = restaurant.employes.filter(employee => employee.Id !== employeeId);
+                            }
+                            return restaurant;
+                        });
+                    } catch (error) {
+                        console.error("Erreur lors de la suppression de l'employé :", error);
+                    }
+                },
+                async deleteRestaurant(restaurantId) {
+                    try {
+                        await axios.delete(`http://127.0.0.1:5000/restaurant/${restaurantId}`);
+                        this.restaurants = this.restaurants.filter(restaurant => restaurant.Id !== restaurantId);
+                    } catch (error) {
+                        console.error("Erreur lors de la suppression du restaurant :", error);
+                    }
+                },
+                async createOneRestaurant() {
+                    try {
+                        const response = await axios.post(`http://127.0.0.1:5000/restaurant`, {
+                            name: this.name,
+                            city: this.city,
+                            nbcouverts: this.nbcouverts,
+                            terrasse: this.terrasse,
+                            parking: this.parking,
+                            // Ajoutez d'autres champs de formulaire ici si nécessaire
+                        });
+                        this.restaurants.push(response.data);
+                        this.name = ''; // Réinitialise le champ de formulaire
+                        this.city = '';
+                        this.nbcouverts = '';
+                        this.terrasse = '';
+                        this.parking = '';
+
+                    } catch (error) {
+                        console.error("Erreur lors de l'ajout du restaurant :", error);
+                    }
+                },
+
+                async createEmploye() {
+                    try {
+                        await axios.post(`http://127.0.0.1:5000/restaurant/${this.restaurant_id}/employe`, {
+                            
+                            first_name: this.first_name,
+                            last_name: this.last_name,
+                            hire_date: this.hire_date,
+                            restaurant_id: this.restaurant_id,
+                        });
+                        console.log(this.restaurant_id);
+                
+                        // Mettez à jour la liste des employés du restaurant sélectionné
+                        const restaurant = this.restaurants.find(r => r.Id === this.restaurant_id);
+                        if (restaurant) {
+                            restaurant.employes.push(response.data);
+                        }
+                
+                        this.first_name = ''; // Réinitialise le champ de formulaire
+                        this.last_name = '';
+                        this.hire_date = '';
+                        this.restaurant_id = '';
+                    } catch (error) {
+                        console.error("Erreur lors de l'ajout de l'employé :", error);
+                    }
+                },
+            },
+            created() {
+                this.update();
+            }
+        });    
+        function reloadPage() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
