@@ -1,5 +1,5 @@
 # Projet Impala
-Node.js / Vue.js 
+Node.js / ejs 
 Enregistrement de Restaurants et Employés avec un affichage sous forme de tableau pour visualiser les données enregistrées.
 
 - Formulaire d'enregistrement de restaurant: Nom du restaurant, Région, Nombre de couverts, Terrasse( oui/non), Parking( oui/non)
